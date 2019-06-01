@@ -75,5 +75,5 @@ export async function sign(options: SignOptions) {
     new TextEncoder().encode(signingString)
   );
   const base64 = btoa(String.fromCharCode(...new Uint8Array(signature)));
-  return `Signature keyId=${options.keyId},algorithm="${options.algorithm || algorithm}",headers="${options.include.join(" ")}",signature="${base64}"`;
+  return `Signature keyId="${options.keyId}",algorithm="${options.algorithm || algorithm}",headers="${options.include.join(" ")}",signature="${base64}"`;
 }
