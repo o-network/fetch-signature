@@ -1,8 +1,10 @@
+const VALID_ALGORITMS = ["rsa-sha256", "rsa-sha384", "rsa-sha512"];
+
 export type SignOptions = {
   keyPair: CryptoKeyPair,
   request: RequestInit;
   keyId: string;
-  algorithm: "rsa-sha256" | "rsa-sha384" | "rsa-sha512";
+  algorithm?: "rsa-sha256" | "rsa-sha384" | "rsa-sha512";
   url?: string; // Must be included if `request-line` or `request-target` is wanted
   version?: string; // Must be included if `request-line` is wanted,
   include: string[]; // Headers & options to include
@@ -49,7 +51,21 @@ export function getSigningString(options: SignOptions) {
     .join("\n");
 }
 
+export function getAlgorithmFromPair(pair: CryptoKeyPair): string {
+  const algorithm: { name: string, hash?: { name: string } } = pair.publicKey.algorithm as any;
+  if (!algorithm.hash) {
+    throw new Error("Invalid algorithm for public key, no hash");
+  }
+  const type = algorithm.name.split("-");
+  const hash = algorithm.hash.name.split("-").join("");
+  return `${type}-${hash}`.toLowerCase();
+}
+
 export async function sign(options: SignOptions) {
+  const algorithm = options.algorithm || getAlgorithmFromPair(options.keyPair);
+  if (VALID_ALGORITMS.indexOf(algorithm) === -1) {
+    throw new Error(`Invalid algorithm "${algorithm}", expected one of ${VALID_ALGORITMS.join(", ")}`);
+  }
   const signingString = getSigningString(options);
   const signature = await crypto.subtle.sign(
     options.keyPair.publicKey.algorithm.name,
@@ -58,5 +74,5 @@ export async function sign(options: SignOptions) {
   );
   const utf8 = utf8TextDecoder.decode(signature);
   const base64 = btoa(utf8);
-  return `Signature keyId=${options.keyId},algorithm="${options.algorithm}",headers="${options.include.join(" ")}",signature="${base64}"`;
+  return `Signature keyId=${options.keyId},algorithm="${options.algorithm || algorithm}",headers="${options.include.join(" ")}",signature="${base64}"`;
 }
