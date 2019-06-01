@@ -20,7 +20,7 @@ export function getRequestLine(options: SignOptions): string {
     throw new Error("version is required when using request-line");
   }
   const url = new URL(options.url);
-  return `${options.request.method.toLowerCase()} ${url.pathname} ${options.version}`;
+  return `${(options.request.method || "get").toLowerCase()} ${url.pathname} ${options.version}`;
 }
 
 export function getRequestTarget(options: SignOptions): string {
@@ -28,7 +28,7 @@ export function getRequestTarget(options: SignOptions): string {
     throw new Error("url is required when using (request-target)");
   }
   const url = new URL(options.url);
-  return `(request-target): ${options.request.method.toLowerCase()} ${url.pathname}`;
+  return `(request-target): ${(options.request.method || "get").toLowerCase()} ${url.pathname}`;
 }
 
 export function getSigningString(options: SignOptions) {
