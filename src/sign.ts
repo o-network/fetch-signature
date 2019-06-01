@@ -11,8 +11,6 @@ export type SignOptions = {
   saltLength?: number;
 };
 
-const utf8TextDecoder = new TextDecoder("utf8");
-
 export function getRequestLine(options: SignOptions): string {
   if (!options.url) {
     throw new Error("url is required when using request-line");
@@ -76,7 +74,6 @@ export async function sign(options: SignOptions) {
     options.keyPair.privateKey,
     new TextEncoder().encode(signingString)
   );
-  const utf8 = utf8TextDecoder.decode(signature);
-  const base64 = btoa(utf8);
+  const base64 = btoa(String.fromCharCode(...new Uint8Array(signature)));
   return `Signature keyId=${options.keyId},algorithm="${options.algorithm || algorithm}",headers="${options.include.join(" ")}",signature="${base64}"`;
 }
