@@ -58,7 +58,7 @@ export function getAlgorithmFromPair(pair: CryptoKeyPair): string {
   }
   const type = algorithm.name.split("-");
   const hash = algorithm.hash.name.split("-").join("");
-  return `${type}-${hash}`.toLowerCase();
+  return `${type[0]}-${hash}`.toLowerCase();
 }
 
 export async function sign(options: SignOptions) {
