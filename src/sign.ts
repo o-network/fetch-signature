@@ -8,6 +8,7 @@ export type SignOptions = {
   url?: string; // Must be included if `request-line` or `request-target` is wanted
   version?: string; // Must be included if `request-line` is wanted,
   include: string[]; // Headers & options to include
+  saltLength?: number;
 };
 
 const utf8TextDecoder = new TextDecoder("utf8");
@@ -68,7 +69,10 @@ export async function sign(options: SignOptions) {
   }
   const signingString = getSigningString(options);
   const signature = await crypto.subtle.sign(
-    options.keyPair.publicKey.algorithm.name,
+    {
+      name: options.keyPair.publicKey.algorithm.name,
+      saltLength: options.saltLength || 0
+    },
     options.keyPair.privateKey,
     new TextEncoder().encode(signingString)
   );
