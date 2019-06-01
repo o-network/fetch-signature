@@ -68,7 +68,7 @@ export async function sign(options: SignOptions) {
   const signingString = getSigningString(options);
   const signature = await crypto.subtle.sign(
     {
-      name: options.keyPair.publicKey.algorithm.name,
+      name: options.keyPair.privateKey.algorithm.name,
       saltLength: options.saltLength || 0
     },
     options.keyPair.privateKey,
